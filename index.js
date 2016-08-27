@@ -71,8 +71,9 @@ function checkNpmPackages(data, monitoredDir) {
     }
 
     if (semver.gt(value.latest, value.current)) {
+      console.log('Time to Upgrade NPM Package ' + key + ' from ' + value.current + ' to ' + value.latest + ' in ' + monitoredDir);
       notifier.notify({
-        'title': 'Time to Upgrade ' + key,
+        'title': 'Time to Upgrade NPM Package' + key,
         'message': 'From ' + value.current + ' to ' + value.latest + '\n' + monitoredDir
       });
     }
@@ -97,9 +98,9 @@ function checkBowerPackages(data, monitoredDir) {
     var current = value.pkgMeta.version;
 
     if (semver.gt(latest, current)) {
-      console.log('Time to Upgrade ' + key + ' from ' + current + ' to ' + latest);
+      console.log('Time to Upgrade Bower Package ' + key + ' from ' + current + ' to ' + latest + ' in ' + monitoredDir);
       notifier.notify({
-        'title': 'Time to Upgrade ' + key,
+        'title': 'Time to Upgrade Bower Package ' + key,
         'message': 'From ' + current + ' to ' + latest + '\n' + monitoredDir
       });
     }
