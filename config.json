@@ -1,0 +1,7 @@
+{
+  "interval": 120000,
+  "monitoredDirs": [
+    "/myprojects/project1",
+    "/myprojects/project2"
+  ]
+}
