@@ -17,6 +17,44 @@ try {
 var statsInfoNpm = {};
 var statsInfoBower = {};
 
+// special cases.
+function validateNpmPackageValue(value) {
+
+    if (!value  ||
+      !value.current ||
+      value.current === 'MISSING' ||
+      value.current === 'git' ||
+      !value.latest ||
+      value.latest === 'MISSING' ||
+      value.latest === 'git' 
+    ) {
+       console.log ('WARNING: Unable to check npm package: ');
+       console.log (value);
+      return false;
+    }
+
+    return true;
+}
+
+// special cases.
+function validateBowerPackageValue(value) {
+
+    if (!value  ||
+      !value.update ||
+      !value.update.latest ||
+      !value.pkgMeta ||
+      !value.pkgMeta.version
+    ) {
+       console.log ('WARNING: Unable to check bower package: ');
+       if (_.has(value, 'pkgMeta.name')) {
+          console.log (value.pkgMeta.name);
+       }
+      return false;
+    }
+
+    return true;
+}
+
 function checkNpmPackages(data, monitoredDir) {
 
   if (!statsInfoNpm[monitoredDir]) {
@@ -27,16 +65,11 @@ function checkNpmPackages(data, monitoredDir) {
 
   _.each(data, function(value, key, info) {
 
-    // special cases.
-    if (!value || value.current === 'MISSING' ||
-      value.current === 'git' ||
-      !value.current ||
-      value.latest === 'MISSING' ||
-      value.latest === 'git' ||
-      !value.latest
-    ) {
+    if (!validateNpmPackageValue(value)) 
+    {
       return;
     }
+
     if (semver.gt(value.latest, value.current)) {
       notifier.notify({
         'title': 'Time to Upgrade ' + key,
@@ -55,18 +88,14 @@ function checkBowerPackages(data, monitoredDir) {
 
   console.log(moment().format() + ': Check # ' + statsInfoBower[monitoredDir] + ' bower packages for ' + monitoredDir);
   _.each(data.dependencies, function(value, key, info) {
-    var latest = value.update.latest;
-    var current = value.pkgMeta.version;
-    // special cases.
-    if (!value || value.current === 'MISSING' ||
-      value.current === 'git' ||
-      !value.current ||
-      value.latest === 'MISSING' ||
-      value.latest === 'git' ||
-      !value.latest
-    ) {
+    if (!validateBowerPackageValue(value)) 
+    { 
       return;
     }
+
+    var latest = value.update.latest;
+    var current = value.pkgMeta.version;
+
     if (semver.gt(latest, current)) {
       console.log('Time to Upgrade ' + key + ' from ' + current + ' to ' + latest);
       notifier.notify({
@@ -103,6 +132,7 @@ setInterval(function() {
         console.log(err);
       }
     });
+
 
     exec('bower list --json', {
       cwd: monitoredDir,
